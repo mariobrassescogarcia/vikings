@@ -132,6 +132,8 @@ var War = function(army1, army2, turns){
 
 	function finish_war(){
 		console.log("The war has ended");
+		console.log("Number of dead vikings: " + died_vikings.length + ".");
+		console.log("Number of dead saxons: " + died_saxons.length + ".");
 	}
 
 	function start_war(){
@@ -142,7 +144,7 @@ var War = function(army1, army2, turns){
 
 	function fight(){
 		var selected_opponents = [];
-	   while (turnnumber <= turns || army1.length === 0 || army2.length === 0){
+	   while (turnnumber <= turns && army1.length !== 0 && army2.length !== 0){
 			army1.forEach(function(first_attacker){
 				var selected_enemy = shuffle(army2)[0];
 				first_attacker.hit(selected_enemy);
@@ -173,6 +175,7 @@ var War = function(army1, army2, turns){
 		console.log(died_saxons)
 		finish_war();
 	};
+	
 	start_war();
 }
 
