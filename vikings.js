@@ -5,7 +5,12 @@ var Viking = function(name, total_health, strength){
 	this.initial_health = total_health;
 	this.strength = strength;
 	this.health = this.initial_health;
-	this.alive = true;
+		if (this.health > 0){
+			this.alive = true;
+		}
+		else {
+			this.alive = false;
+		}
 };
 
 Viking.prototype.hit = function (enemy) {
@@ -25,12 +30,6 @@ Viking.prototype.full_recover = function() {
 	this.health = this.initial_health;
 };
 
-Viking.prototype.die = function() {
-	if (this.health <= 0){
-		this.alive = false;
-	}
-};
-
 var Ragnar = new Viking ("Ragnar", 1000, 130);
 var Rolo = new Viking ("Rolo", 1300, 115);
 var Lagarza = new Viking ("Lagarza", 800, 150);
@@ -44,28 +43,27 @@ var Saxon = function(){
 	this.initial_health = Math.floor(Math.random()*(500-100+1))+100;
 	this.strength = Math.floor(Math.random()*(50-20+1))+20;
 	this.health = this.initial_health;
-	this.alive = true;
+	if (this.health > 0){
+			this.alive = true;
+		}
+		else {
+			this.alive = false;
+		}
 };
 
 Saxon.prototype.hit = function (enemy) {
 	enemy.health = enemy.health - this.strength;
 };
 
-Saxon.prototype.die = function() {
-	if (this.health <= 0){
-		this.alive = false;
-	}
-};
-
 function wildSaxonsappear (number) {
-  var saxonsArmy = [];
+  var saxons = [];
   for (var i = number; i >= 0; i--) {
-    saxonsArmy.push(new Saxon());
+    saxons.push(new Saxon());
   }
-  return saxonsArmy;
+  return saxons;
 }
 
-wildSaxonsappear(15);
+var saxonsArmy = wildSaxonsappear(15);
 
 function shuffle(a) {
     var j, x, i;
@@ -123,54 +121,59 @@ var PitFight = function (viking1, viking2, turns){
 
 };
 
-brothersfight = new PitFight (Ragnar, Rolo, 10);
+// brothersfight = new PitFight (Ragnar, Rolo, 10);
 
 // WAR CLASS AND METHODS
 
 var War = function(army1, army2, turns){
 	var turnnumber = 1;
+	var died_vikings = [];
+	var died_saxons = [];
 
 	function finish_war(){
 		console.log("The war has ended");
 	}
 
-	function war_rules(soldier, army){
-		if (soldier.health <= 0){
-			army.splice(soldier);
-		}		
+	function start_war(){
+		console.log("A bunch of saxons appeared! Let's fight!");
+		console.log("------------------------------------");
+		fight();
 	}
 
 	function fight(){
-
+		var selected_opponents = [];
 	   while (turnnumber <= turns || army1.length === 0 || army2.length === 0){
-
-				var numberOfVikings = army1.length;
-				var randomViking = army1[Math.floor(Math.random()*numberOfVikings)];
-				var numberOfSaxons = army2.length;
-				var randomSaxon = army2[Math.floor(Math.random()*numberOfSaxons)];
-
 			army1.forEach(function(first_attacker){
-
-				first_attacker.hit(randomSaxon);
-				console.log(first_attacker.name + " attacks " + randomSaxon.name + ". " + randomSaxon.name + "'s health is " + randomSaxon.health);
-				war_rules(randomSaxon, saxonsArmy);
+				var selected_enemy = shuffle(army2)[0];
+				first_attacker.hit(selected_enemy);
+				console.log(first_attacker.name + " attacks " + selected_enemy.name + ". " + selected_enemy.name + "'s health is " + selected_enemy.health);
+				selected_enemy.hit(first_attacker);
+				console.log(selected_enemy.name + " attacks " + first_attacker.name + ". " + first_attacker.name + "'s health is " + first_attacker.health);
+				
+				if (first_attacker.alive === false) {
+					died_vikings.push(first_attacker);
+					console.log(first_attacker.name + " died in combat. ");
+					army1.splice(first_attacker, 1);
+				};
+				if (selected_enemy.alive === false) {
+					died_saxons.push(selected_enemy);
+					console.log(selected_enemy.name + " died in combat. ");
+					army2.splice(selected_enemy, 1);
+				}
+				selected_opponents.push(selected_enemy);
+				army2.splice(selected_enemy, 1);
 			});
-			
-			army2.forEach(function(second_attacker){
-
-				second_attacker.hit(randomViking);
-							console.log(second_attacker.name + " attacks " + randomViking.name + ". " + randomViking.name + "'s health is " + randomViking.health);
-				war_rules(randomViking, vikingsArmy);
+			selected_opponents.forEach(function(opponent){
+				army2.push(opponent)
 			});
-
+			console.log("End of turn " + turnnumber);
+			console.log("------------------------------------");
 			turnnumber++;	
 		}
-		
+		console.log(died_saxons)
+		finish_war();
 	};
+	start_war();
+}
 
-fight();
-
-};
-
-
-// MersiaWar = new War (vikingsArmy, saxonsArmy, 10);
+MersiaWar = new War (vikingsArmy, saxonsArmy, 5);
