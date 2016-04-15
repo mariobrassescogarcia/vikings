@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 var Viking = function(name, total_health, strength){
 	this.name = name;
 	this.initial_health = total_health;
@@ -7,8 +14,7 @@ var Viking = function(name, total_health, strength){
 
 
 Viking.prototype.hit = function (enemy) {
-	var damage = this.strength;
-	enemy.health = enemy.health - damage;
+	enemy.health = enemy.health - this.strength;
 };
 
 Viking.prototype.full_recover = function() {
@@ -16,12 +22,31 @@ Viking.prototype.full_recover = function() {
 };
 
 
-
-
 var Ragnar = new Viking ("Ragnar", 1000, 130);
 var Rolo = new Viking ("Rolo", 1300, 115);
 var Lagarza = new Viking ("Lagarza", 800, 150);
 var Bjorn = new Viking ("Bjorn", 1200, 120);
+
+
+var Saxon = function(){
+	this.initial_health = Math.floor(Math.random()*(500-100+1))+100;
+	this.strength = Math.floor(Math.random()*(50-20+1))+20;
+	this.health = this.initial_health;
+};
+
+
+var saxon1 = new Saxon; 
+var saxon2 = new Saxon;
+var saxon3 = new Saxon; 
+
+
+console.log(saxon1.initial_health);
+console.log(saxon2.initial_health);
+console.log(saxon3.initial_health);
+console.log(saxon1.strength);
+console.log(saxon2.strength);
+console.log(saxon3.strength);
+
 
 
 
@@ -75,6 +100,6 @@ var PitFight = function (viking1, viking2, turns){
 }
 
 
-brothersfight = new PitFight (Ragnar, Rolo, 10);
-brothersfight = new PitFight (Ragnar, Rolo, 10);
+// brothersfight = new PitFight (Ragnar, Rolo, 10);
+// brothersfight = new PitFight (Ragnar, Rolo, 10);
 
