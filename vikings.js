@@ -1,105 +1,176 @@
-
-
-
-
-
-
+// VIKINGS CLASS, METHODS AND CHARACTERS
 
 var Viking = function(name, total_health, strength){
 	this.name = name;
 	this.initial_health = total_health;
 	this.strength = strength;
 	this.health = this.initial_health;
+	this.alive = true;
 };
-
 
 Viking.prototype.hit = function (enemy) {
 	enemy.health = enemy.health - this.strength;
+};
+
+Viking.prototype.check_ally_health = function (attacker, defender) {
+	if (attacker.strength > defender.health) {
+		return false;
+	}
+	else{
+		return true;
+	}
 };
 
 Viking.prototype.full_recover = function() {
 	this.health = this.initial_health;
 };
 
+Viking.prototype.die = function() {
+	if (this.health <= 0){
+		this.alive = false;
+	}
+};
 
 var Ragnar = new Viking ("Ragnar", 1000, 130);
 var Rolo = new Viking ("Rolo", 1300, 115);
 var Lagarza = new Viking ("Lagarza", 800, 150);
 var Bjorn = new Viking ("Bjorn", 1200, 120);
+var vikingsArmy = [Ragnar, Rolo, Lagarza, Bjorn];
 
+// SAXON CLASS, METHODS AND CHARACTERS
 
 var Saxon = function(){
+	this.name = "Wild Newbie Saxon";
 	this.initial_health = Math.floor(Math.random()*(500-100+1))+100;
 	this.strength = Math.floor(Math.random()*(50-20+1))+20;
 	this.health = this.initial_health;
+	this.alive = true;
 };
 
+Saxon.prototype.hit = function (enemy) {
+	enemy.health = enemy.health - this.strength;
+};
 
-var saxon1 = new Saxon; 
-var saxon2 = new Saxon;
-var saxon3 = new Saxon; 
+Saxon.prototype.die = function() {
+	if (this.health <= 0){
+		this.alive = false;
+	}
+};
 
+function wildSaxonsappear (number) {
+  var saxonsArmy = [];
+  for (var i = number; i >= 0; i--) {
+    saxonsArmy.push(new Saxon());
+  }
+  return saxonsArmy;
+}
 
-console.log(saxon1.initial_health);
-console.log(saxon2.initial_health);
-console.log(saxon3.initial_health);
-console.log(saxon1.strength);
-console.log(saxon2.strength);
-console.log(saxon3.strength);
+wildSaxonsappear(15);
 
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length; i; i -= 1) {
+        j = Math.floor(Math.random() * i);
+        x = a[i - 1];
+        a[i - 1] = a[j];
+        a[j] = x;
+    }
+    return a;
+}
 
-
-
+// PITFIGHT CLASS AND METHODS
 
 var PitFight = function (viking1, viking2, turns){
-	
 	var turnnumber = 1;
 
-
 	function finish_fight() {
+		console.log("------------------------------------");
 		console.log("The figth ends. " + viking1.name + " and " + viking2.name + " go to grab some beers together. ");
 		console.log("------------------------------------");
 		viking1.full_recover();
 		viking2.full_recover();
 	}
 
-	function should_attack(attacker, defender){
-		if (attacker.strength < defender.health){
-			return true;
-		}
+	function start_fight(){
+		console.log("Ladies and gentlemen! The pitfight will start. " + viking1.name + " vs. " + viking2.name + ". " + turns + " turns. Let's battle!");
+		console.log("------------------------------------");
+		fight();
+	}
 
-		else{
-			return false;
-		}	
+	function fight(){
+   while (turnnumber <= turns){
+   	if (viking1.check_ally_health(viking1, viking2)){
+   		viking1.hit(viking2);
+   		console.log(viking1.name + " hits " + viking2.name + ". " + viking2.name + "'s health: " + viking2.health + ".");
+   	}
+		else {
+			finish_fight();
+			break};
+		if (viking2.check_ally_health(viking2, viking1)){
+				viking2.hit(viking1);
+				console.log(viking2.name + " hits " + viking1.name + ". " + viking1.name + "'s health: " + viking1.health + ".");
+
+		}
+		else {
+			finish_fight();
+			break};
+		console.log("End of turn " + turnnumber);
+		console.log("------------------------------------");
+		turnnumber ++;
+   }
+	}
+		start_fight();
+
+};
+
+brothersfight = new PitFight (Ragnar, Rolo, 10);
+
+// WAR CLASS AND METHODS
+
+var War = function(army1, army2, turns){
+	var turnnumber = 1;
+
+	function finish_war(){
+		console.log("The war has ended");
+	}
+
+	function war_rules(soldier, army){
+		if (soldier.health <= 0){
+			army.splice(soldier);
+		}		
 	}
 
 	function fight(){
 
-   while (turnnumber <= turns){
-		if (should_attack(viking1, viking2) === true){
-				viking1.hit(viking2);
-				console.log(viking1.name + " hits " + viking2.name + ". " + viking2.name + "'s health: " + viking2.health + ".");
+	   while (turnnumber <= turns || army1.length === 0 || army2.length === 0){
+
+				var numberOfVikings = army1.length;
+				var randomViking = army1[Math.floor(Math.random()*numberOfVikings)];
+				var numberOfSaxons = army2.length;
+				var randomSaxon = army2[Math.floor(Math.random()*numberOfSaxons)];
+
+			army1.forEach(function(first_attacker){
+
+				first_attacker.hit(randomSaxon);
+				console.log(first_attacker.name + " attacks " + randomSaxon.name + ". " + randomSaxon.name + "'s health is " + randomSaxon.health);
+				war_rules(randomSaxon, saxonsArmy);
+			});
+			
+			army2.forEach(function(second_attacker){
+
+				second_attacker.hit(randomViking);
+							console.log(second_attacker.name + " attacks " + randomViking.name + ". " + randomViking.name + "'s health is " + randomViking.health);
+				war_rules(randomViking, vikingsArmy);
+			});
+
+			turnnumber++;	
 		}
-		else {
-			finish_fight();
-			break}
+		
+	};
 
-		if (should_attack(viking2, viking1) === true){
-				viking2.hit(viking1);
-				console.log(viking2.name + " hits " + viking1.name + ". " + viking1.name + "'s health: " + viking1.health + ".");
-		}
-		else {
-			finish_fight();
-			break}		
-		console.log("End of turn " + turnnumber);
-		turnnumber ++;
-   }
-	
-	}
-		fight();
-}
+fight();
+
+};
 
 
-// brothersfight = new PitFight (Ragnar, Rolo, 10);
-// brothersfight = new PitFight (Ragnar, Rolo, 10);
-
+// MersiaWar = new War (vikingsArmy, saxonsArmy, 10);
